@@ -13,7 +13,7 @@ totalStepCt = 0;
 sharingReplay = true;
 trainingMode = false;
 if trainingMode == false
-    Agents = load('26.mat');
+    Agent = load('415.mat');
 end
 obsInfo = rlNumericSpec([1 1]);
 obsInfo.Name = 'DENM States';
@@ -35,7 +35,7 @@ criticNetwork = [
     reluLayer('Name','CriticRelu2')
     fullyConnectedLayer(length(actInfo.Elements),'Name','output')];
 
-criticNetwork = dlnetwork(criticNetwork);
+% criticNetwork = dlnetwork(criticNetwork);
 
 criticOpts = rlRepresentationOptions('LearnRate',0.01,'GradientThreshold',1); %'UseDevice',device);
 
@@ -71,7 +71,7 @@ for episodesCt = 1:numEpisodes
         'vMean',70,'vStDev',3,'roadWidth',3.5,'Raw',[50 75 100 125 150 200 300],'printUpdateDelay', true, 'dynamicScheduling', true, 'TsensingPeriod', 1, ...
         'cv2xNumberOfReplicasMax', 3, 'DENM_prob', 0.2, 'dcc_active', false, 'sizeSubchannel',25, 'BwMHz',10, 'SCS_NR',15, ...
         'Priority_SPS',false, 'T2autonomousMode_min',5,'resourceReEvaluation',true,'cv2xCbrFactor',1, 'Priority_DCC', 3, ...
-        'generationIntervalAverageRandomPart', 0.01});
+        'generationIntervalAverageRandomPart', 0.01, 'seed', 2});
     % Update PHY structure with the ranges
     [phyParams] = deriveRanges(phyParams,simParams);
 
@@ -246,7 +246,8 @@ for episodesCt = 1:numEpisodes
 
     if episodesCt == 1 
         Critics = struct;
-        Agents = struct; %load("0419_trainedAgents.mat");
+        Agents = struct;
+        %load("0419_trainedAgents.mat");
         %Agents = Agents.Agents
         Epsilons = zeros(1,simValues.maxID);
         EpisodesVector = struct;
@@ -254,11 +255,11 @@ for episodesCt = 1:numEpisodes
         for t = stationManagement.activeIDs(stationManagement.maxCAM+1):stationManagement.activeIDs(end)
             Critics(1,t).critic = rlQValueRepresentation(criticNetwork,obsInfo,actInfo,'Observation',{'state'},'Action',{'output'},criticOpts);
             % DQN 에이전트 생성
-            Agents(1,t).agent = rlDQNAgent(Critics(1,t).critic, agentOpts);
             % %Actors(1,t).actor = rlDeterministicActorRepresentation(actorNetwork,obsInfo,actInfo,'Observation',{'state'},'Action',{'ActorScaling'},actorOpts);
             % Agents(1,t).agent = rlDQNAgent(Critics(1,t).critic,agentOpts);
             % criticgradFcn = dlaccelerate(@deepCriticGradient);
             Critics(1,t).critic = setLoss(Critics(1,t).critic,'rl.loss.dq');
+            Agents(1,t).agent = rlDQNAgent(Agent.Critics(1,t).critic,agentOpts);
             epsilon = Agents(1,t).agent.AgentOptions.EpsilonGreedyExploration.Epsilon;
             Epsilons(1,t) = epsilon;
             EpisodesVector(1,t).Reward = [];

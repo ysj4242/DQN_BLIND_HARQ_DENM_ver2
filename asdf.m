@@ -18,7 +18,7 @@ cumulative_reward_vec = [];
 episodeCumulativeRewardVector = [];
 totalStepCt = 0;
 sharingReplay = true;
-trainingMode = true;
+trainingMode = false;
 
 obsInfo = rlNumericSpec([1 1]);
 obsInfo.Name = 'DENM States';
